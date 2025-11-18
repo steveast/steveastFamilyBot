@@ -1,6 +1,6 @@
 import { Context } from 'telegraf'
 import { v4 as uuidv4 } from 'uuid'
-import { getDB, persist } from '../services/storage.ts'
+import { getDB, persist } from '../services/storage'
 
 export async function handleTodo(ctx: Context, text?: string) {
   const args = (text || '').trim().split(' ')

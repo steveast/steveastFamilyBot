@@ -4,13 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "nodemon --watch src --ext ts --exec \"ts-node src/index.ts\"",
+    "start": "npm run dev",
     "lint": "eslint \"src/**/*.{ts,tsx}\" --fix",
     "format": "prettier --write \"**/*.ts\"",
     "format:check": "prettier --check \"**/*.ts\"",
-    "test": "npm run lint",
-    "dev": "nodemon --watch src --exec ts-node --loader ts-node/esm src/index.ts",
     "build": "tsc",
-    "start": "npm run dev"
+    "test": "npm run lint"
   },
   "dependencies": {
     "dotenv": "^17.2.3",

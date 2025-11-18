@@ -1,6 +1,6 @@
-import { initDB } from './services/storage.ts'
-import { createBot } from './bot.ts'
-import { startScheduler } from './services/scheduler.ts'
+import { initDB } from './services/storage'
+import { createBot } from './bot'
+import { startScheduler } from './services/scheduler'
 import dotenv from 'dotenv'
 
 dotenv.config()

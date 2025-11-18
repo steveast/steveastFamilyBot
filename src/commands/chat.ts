@@ -1,5 +1,5 @@
 import { Context } from 'telegraf'
-import { askChatGPT } from '../services/openai.ts'
+import { askChatGPT } from '../services/openai'
 
 export async function handleChat(ctx: Context, text?: string) {
   const prompt = (text || '').trim()

@@ -1,6 +1,6 @@
 import { Context } from 'telegraf'
 import { v4 as uuidv4 } from 'uuid'
-import { getDB, persist, Reminder } from '../services/storage.ts'
+import { getDB, persist, Reminder } from '../services/storage'
 
 // Формат: /remind 2025-11-20T20:00 Пойти купить хлеб
 export async function handleRemind(ctx: Context, text?: string) {
