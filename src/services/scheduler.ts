@@ -1,6 +1,5 @@
 import cron from 'node-cron'
 import { getDB, persist } from './storage'
-import { ReminderItem } from '../types'
 
 let task: cron.ScheduledTask | null = null
 
