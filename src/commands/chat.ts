@@ -1,16 +1,18 @@
-// src/commands/chat.ts
 import { Context } from 'telegraf'
-import { askChatGPT } from '../services/openai'
+import { askChatGPT } from '../services/openai.ts'
 
 export async function handleChat(ctx: Context, text?: string) {
   const prompt = (text || '').trim()
   if (!prompt) return ctx.reply('Напиши вопрос после /chat')
+
   try {
     await ctx.reply('Думаю...')
     const answer = await askChatGPT(prompt)
     await ctx.reply(answer || 'Пустой ответ от ChatGPT')
   } catch (e: unknown) {
     console.error(e)
-    await ctx.reply('Ошибка при запросе к OpenAI: ' + (e.message || e.toString()))
+    // безопасная конкатенация ошибки
+    const msg = e instanceof Error ? e.message : typeof e === 'string' ? e : 'Неизвестная ошибка'
+    await ctx.reply('Ошибка при запросе к OpenAI: ' + msg)
   }
 }

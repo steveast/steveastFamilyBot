@@ -1,41 +1,25 @@
 import { Telegraf } from 'telegraf'
-import dotenv from 'dotenv'
-import { handleTodo } from './commands/todo'
-import { handleRemind } from './commands/reminder'
-import { handleChat } from './commands/chat'
-
-dotenv.config()
-const token = process.env.BOT_TOKEN
-if (!token) throw new Error('BOT_TOKEN not set')
+import { askChatGPT } from './services/openai.ts'
 
 export function createBot() {
-  const bot = new Telegraf(token)
+  if (!process.env.BOT_TOKEN) throw new Error('BOT_TOKEN not set')
+  const bot = new Telegraf(process.env.BOT_TOKEN)
 
-  bot.start((ctx) => ctx.reply('Привет! Я Steve Family Bot. /help для списка команд'))
-
-  bot.command('help', (ctx) =>
-    ctx.reply(
-      '/todo <cmd> — управление TODO\n/remind <ISO_TIME> <text> — добавить напоминание\n/chat <text> — спросить ChatGPT',
-    ),
-  )
-
-  bot.command('todo', async (ctx) => {
-    const text = ctx.message?.text?.split(' ').slice(1).join(' ')
-    await handleTodo(ctx, text)
-  })
-
-  bot.command('remind', async (ctx) => {
-    const text = ctx.message?.text?.split(' ').slice(1).join(' ')
-    await handleRemind(ctx, text)
-  })
+  bot.start((ctx) => ctx.reply('Привет! Я Steve Family Bot.'))
 
   bot.command('chat', async (ctx) => {
-    const text = ctx.message?.text?.split(' ').slice(1).join(' ')
-    await handleChat(ctx, text)
+    const prompt = ctx.message?.text.replace('/chat', '').trim()
+    if (!prompt) return ctx.reply('Напиши вопрос после /chat')
+    try {
+      await ctx.reply('Думаю...')
+      const answer = await askChatGPT(prompt)
+      await ctx.reply(answer || 'Пустой ответ')
+    } catch (e: unknown) {
+      console.error(e)
+      await ctx.reply('Ошибка при запросе к OpenAI')
+    }
   })
 
-  // simple echo for unknown messages
-  bot.on('text', (ctx) => ctx.reply('Неизвестная команда. /help'))
-
+  bot.launch()
   return bot
 }

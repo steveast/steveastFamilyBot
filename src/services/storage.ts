@@ -1,32 +1,44 @@
 import { Low } from 'lowdb'
 import { JSONFile } from 'lowdb/node'
-import { join } from 'path'
-import { DBSchema } from '../types'
-import dotenv from 'dotenv'
-import fs from 'fs'
+import path from 'path'
 
-dotenv.config()
-
-const DB_PATH = process.env.DB_PATH || './data/db.json'
-
-// ensure data folder
-const dir = join(DB_PATH, '..')
-if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
-
-const adapter = new JSONFile<DBSchema>(DB_PATH)
-const db = new Low<DBSchema>(adapter)
-
-export async function initDB() {
-  await db.read()
-  db.data ||= { todos: [], reminders: [] }
-  await db.write()
+export type Todo = {
+  id: string
+  text: string
+  done: boolean
+  createdAt: string
 }
 
-export function getDB() {
-  if (!db.data) throw new Error('Database not initialized')
+export type Reminder = {
+  id: string
+  chatId: number
+  text: string
+  when: string // ISO string
+  createdAt: string
+  fired: boolean
+}
+
+export type Data = {
+  todos: Todo[]
+  reminders: Reminder[]
+}
+
+let db: Low<Data>
+
+export async function initDB() {
+  const file = path.join(process.cwd(), 'db.json')
+  const adapter = new JSONFile<Data>(file)
+  db = new Low(adapter)
+  await db.read()
+  db.data ||= { todos: [], reminders: [] }
+}
+
+export function getDB(): Low<Data> {
+  if (!db) throw new Error('DB not initialized')
   return db
 }
 
 export async function persist() {
+  if (!db) throw new Error('DB not initialized')
   await db.write()
 }
