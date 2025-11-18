@@ -1,7 +1,7 @@
-import { initDB } from './services/storage'
 import { createBot } from './bot'
 import { startScheduler } from './services/scheduler'
 import dotenv from 'dotenv'
+import { initDB } from './services/storage'
 
 dotenv.config()
 
