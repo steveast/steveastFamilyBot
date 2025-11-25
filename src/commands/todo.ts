@@ -2,11 +2,13 @@ import { Context } from 'telegraf';
 import { v4 as uuidv4 } from 'uuid';
 import { getDB, persist } from '../services/storage';
 
-export async function handleTodo(ctx: Context, text?: string) {
-  const args = (text || '').trim().split(' ');
-  const cmd = args[0];
+export async function handleTodo(ctx: Context, source?: string) {
+  const args = (source || '').trim().split(' ');
+  const rootCmd = args[0];
+  const cmd = args[1];
 
   const db = getDB();
+  console.log(rootCmd, cmd, args);
 
   if (!cmd || cmd === 'help') {
     return ctx.reply(
