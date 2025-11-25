@@ -1,9 +1,7 @@
 import { createBot } from './bot';
 import { startScheduler } from './services/scheduler';
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import { initDB } from './services/storage';
-
-dotenv.config();
 
 async function main() {
   await initDB();
