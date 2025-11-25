@@ -4,11 +4,9 @@ import { getDB, persist } from '../services/storage';
 
 export async function handleTodo(ctx: Context, source?: string) {
   const args = (source || '').trim().split(' ');
-  const rootCmd = args[0];
   const cmd = args[1];
 
   const db = getDB();
-  console.log(rootCmd, cmd, args);
 
   if (!cmd || cmd === 'help') {
     return ctx.reply(
@@ -21,7 +19,7 @@ export async function handleTodo(ctx: Context, source?: string) {
   }
 
   if (cmd === 'add') {
-    const itemText = args.slice(1).join(' ');
+    const itemText = args.slice(2).join(' ');
     if (!itemText) return ctx.reply('Текст пустой');
 
     const item = {
@@ -45,7 +43,7 @@ export async function handleTodo(ctx: Context, source?: string) {
   }
 
   if (cmd === 'done') {
-    const id = args[1];
+    const id = args[2];
     const it = db.data!.todos.find((t) => t.id === id);
     if (!it) return ctx.reply('Не найден id');
 
@@ -55,7 +53,7 @@ export async function handleTodo(ctx: Context, source?: string) {
   }
 
   if (cmd === 'remove') {
-    const id = args[1];
+    const id = args[2];
     const before = db.data!.todos.length;
     db.data!.todos = db.data!.todos.filter((t) => t.id !== id);
 

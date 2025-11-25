@@ -1,1 +1,11 @@
-{}
+{
+  "todos": [
+    {
+      "id": "1da408c1-f463-4a0e-a37e-95503f6c35d1",
+      "text": "test",
+      "done": false,
+      "createdAt": "2025-11-25T19:23:10.249Z"
+    }
+  ],
+  "reminders": []
+}
