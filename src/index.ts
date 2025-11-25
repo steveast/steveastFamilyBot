@@ -4,6 +4,7 @@ import 'dotenv/config';
 import { initDB } from './services/storage';
 
 async function main() {
+  console.log(process.env);
   await initDB();
   const bot = createBot();
   startScheduler(async (chatId: number, text: string) => {

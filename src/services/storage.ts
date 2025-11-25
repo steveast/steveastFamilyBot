@@ -26,7 +26,7 @@ export type Data = {
 let db: Low<Data>;
 
 export async function initDB() {
-  const file = path.join(process.cwd(), './data/db.json');
+  const file = path.join(process.cwd(), process.env.DB_PATH!);
   const adapter = new JSONFile<Data>(file);
   db = new Low(adapter, {
     todos: [],
