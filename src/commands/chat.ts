@@ -1,18 +1,18 @@
-import { Context } from 'telegraf'
-import { askChatGPT } from '../services/openai'
+import { Context } from 'telegraf';
+import { askChatGPT } from '../services/openai';
 
 export async function handleChat(ctx: Context, text?: string) {
-  const prompt = (text || '').trim()
-  if (!prompt) return ctx.reply('Напиши вопрос после /chat')
+  const prompt = (text || '').trim();
+  if (!prompt) return ctx.reply('Напиши вопрос после /chat');
 
   try {
-    await ctx.reply('Думаю...')
-    const answer = await askChatGPT(prompt)
-    await ctx.reply(answer || 'Пустой ответ от ChatGPT')
+    await ctx.reply('Думаю...');
+    const answer = await askChatGPT(prompt);
+    await ctx.reply(answer || 'Пустой ответ от ChatGPT');
   } catch (e: unknown) {
-    console.error(e)
+    console.error(e);
     // безопасная конкатенация ошибки
-    const msg = e instanceof Error ? e.message : typeof e === 'string' ? e : 'Неизвестная ошибка'
-    await ctx.reply('Ошибка при запросе к OpenAI: ' + msg)
+    const msg = e instanceof Error ? e.message : typeof e === 'string' ? e : 'Неизвестная ошибка';
+    await ctx.reply('Ошибка при запросе к OpenAI: ' + msg);
   }
 }
