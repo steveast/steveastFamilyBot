@@ -8,7 +8,6 @@ dotenv.config()
 async function main() {
   await initDB()
   const bot = createBot()
-
   startScheduler(async (chatId: number, text: string) => {
     try {
       await bot.telegram.sendMessage(chatId, text)

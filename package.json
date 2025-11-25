@@ -2,15 +2,14 @@
   "name": "steve-family-bot",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "dev": "nodemon --watch src --ext ts --exec \"ts-node src/index.ts\"",
     "start": "npm run dev",
-    "lint": "eslint \"src/**/*.{ts,tsx}\" --fix",
-    "format": "prettier --write \"src/**/*.ts\"",
-    "format:check": "prettier --check \"src/**/*.ts\"",
     "build": "tsc",
-    "test": "npm run lint"
+    "test": "npm run lint",
+    "dev": "nodemon --watch src --ext ts --exec \"ts-node src/index.ts\"",
+    "lint": "eslint src --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.{ts,js,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,js,json}\""
   },
   "dependencies": {
     "dotenv": "^17.2.3",
@@ -24,8 +23,8 @@
     "@types/node": "^24.10.1",
     "@types/node-cron": "^3.0.11",
     "@types/uuid": "^11.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.47.0",
-    "@typescript-eslint/parser": "^8.47.0",
+    "@typescript-eslint/eslint-plugin": "^8.48.0",
+    "@typescript-eslint/parser": "^8.48.0",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",

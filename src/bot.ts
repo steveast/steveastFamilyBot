@@ -1,5 +1,5 @@
 import { Telegraf } from 'telegraf'
-import { askChatGPT } from './services/openai.ts'
+import { askChatGPT } from './services/openai'
 
 export function createBot() {
   if (!process.env.BOT_TOKEN) throw new Error('BOT_TOKEN not set')

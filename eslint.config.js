@@ -1,26 +1,34 @@
-import tseslint from "@typescript-eslint/eslint-plugin";
-import tsparser from "@typescript-eslint/parser";
-import prettier from "eslint-plugin-prettier";
+// eslint.config.js
+import tseslint from 'typescript-eslint';
+import prettier from 'eslint-plugin-prettier';
+import prettierConfig from 'eslint-config-prettier';   // ← ЭТО ГЛАВНОЕ
 
-export default [
+export default tseslint.config(
+  // Отключаем все правила форматирования из ESLint
+  prettierConfig,
+
+  // Базовые рекомендации TypeScript
+  ...tseslint.configs.recommended,
+
   {
-    files: ["src/**/*.ts"],
+    files: ['src/**/*.ts'],
     languageOptions: {
-      parser: tsparser,
       parserOptions: {
-        ecmaVersion: 2020,
-        sourceType: "module",
-        project: "./tsconfig.json"
-      }
+        project: './tsconfig.json',
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
     plugins: {
-      "@typescript-eslint": tseslint,
-      prettier
+      prettier,                              // оставляем только для показа ошибок Prettier
     },
     rules: {
-      ...tseslint.configs.recommended.rules,
-      "prettier/prettier": "error",
-      "@typescript-eslint/no-explicit-any": "warn"
-    }
-  }
-];
+      'prettier/prettier': 'error',          // теперь Prettier рулит полностью
+
+      // Оставляем только логические/типовые правила, форматирование убираем!
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/consistent-type-imports': 'error',
+      // ← БОЛЬШЕ НИКАКИХ semi, quotes, trailingComma и т.д.
+    },
+  },
+);
