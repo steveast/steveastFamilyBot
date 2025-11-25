@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "mr-trend",
+      name: "steveastFamilyBot",
       script: "./dist/index.js",
       watch: false,
       autorestart: true,
