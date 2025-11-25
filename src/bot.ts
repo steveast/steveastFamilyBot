@@ -1,6 +1,13 @@
 import { Telegraf } from 'telegraf';
 import { handleAi } from './commands/ai';
-import { showTodoMenu, handleTodoMessage } from './commands/todo';
+import {
+  showTodoMenu,
+  handleTodoAddRequest,
+  handleTodoText,
+  handleTodoList,
+  handleTodoDone,
+  handleTodoDelete,
+} from './commands/todo';
 import { session } from 'telegraf';
 
 export function createBot() {
@@ -10,8 +17,17 @@ export function createBot() {
 
   bot.start((ctx) => ctx.reply('Привет! Я Steve Family Bot.'));
 
+  // Главное меню TODO
   bot.command('todo', showTodoMenu);
-  bot.on('text', handleTodoMessage);
+
+  // Кнопки
+  bot.action('todo_add', handleTodoAddRequest);
+  bot.action('todo_list', handleTodoList);
+  bot.action(/^todo_done_(.+)$/, handleTodoDone);
+  bot.action(/^todo_del_(.+)$/, handleTodoDelete);
+
+  // Обработка текста (добавление TODO)
+  bot.on('text', handleTodoText);
 
   bot.hears(/^ии\s+/i, async (ctx) => {
     await handleAi(ctx);

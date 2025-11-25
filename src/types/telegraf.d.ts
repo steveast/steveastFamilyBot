@@ -1,10 +1,12 @@
 import 'telegraf';
 
 declare module 'telegraf' {
+  interface SessionData {
+    mode?: string | null;
+    [key: string]: any;
+  }
+
   interface Context {
-    session?: {
-      mode?: string;
-      [key: string]: any;
-    } | null;
+    session?: SessionData;
   }
 }

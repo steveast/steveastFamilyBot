@@ -4,103 +4,109 @@ import { getDB, persist } from '../services/storage';
 
 export async function showTodoMenu(ctx: Context) {
   return ctx.reply(
-    'Меню TODO:',
-    Markup.keyboard([
-      ['➕ Добавить', '📋 Список'],
-      ['✔️ Выполнить', '🗑 Удалить'],
-    ])
-      .resize()
-      .oneTime(),
+    'Управление TODO:',
+    Markup.inlineKeyboard([
+      [Markup.button.callback('➕ Добавить', 'todo_add')],
+      [Markup.button.callback('📋 Показать список', 'todo_list')],
+    ]),
   );
 }
 
-export async function handleTodoMessage(ctx: any) {
-  const text = ctx.message?.text;
+// -------------------------
+// РЕНДЕР ОДНОГО TODO
+// -------------------------
+function renderTodoItem(todo: any) {
+  return {
+    text: `${todo.done ? '✅' : '⬜'} ${todo.text}\n`,
+    keyboard: Markup.inlineKeyboard([
+      !todo.done ? [Markup.button.callback('✔ Готово', `todo_done_${todo.id}`)] : [],
+      [Markup.button.callback('❌ Удалить', `todo_del_${todo.id}`)],
+    ]),
+  };
+}
 
+// -------------------------
+// ПОКАЗАТЬ СПИСОК
+// -------------------------
+export async function handleTodoList(ctx: Context) {
+  const db = getDB();
+  const todos = db.data!.todos;
+
+  if (todos.length === 0) return ctx.reply('Список TODO пуст');
+
+  for (const t of todos) {
+    const { text, keyboard } = renderTodoItem(t);
+    await ctx.reply(text, keyboard);
+  }
+
+  await ctx.answerCbQuery();
+}
+
+// -------------------------
+// НАЧАТЬ ДОБАВЛЕНИЕ
+// -------------------------
+export async function handleTodoAddRequest(ctx: any) {
+  ctx.session = { mode: 'todo_add' };
+  await ctx.answerCbQuery();
+  return ctx.reply('Введите текст TODO:');
+}
+
+// -------------------------
+// ПОЛУЧИТЬ ТЕКСТ ДЛЯ ДОБАВЛЕНИЯ
+// -------------------------
+export async function handleTodoText(ctx: any) {
+  if (!ctx.session || ctx.session.mode !== 'todo_add') return;
+
+  const text = ctx.message?.text;
   if (!text) return;
 
-  // --------------------------
-  // 1. Д O Б А В И Т Ь
-  // --------------------------
-  if (text === '➕ Добавить') {
-    ctx.session = { mode: 'todo_add' };
-    return ctx.reply('Напиши текст задачи:');
-  }
+  const db = getDB();
 
-  if (ctx.session?.mode === 'todo_add') {
-    ctx.session = null;
+  const item = {
+    id: uuidv4(),
+    text,
+    done: false,
+    createdAt: new Date().toISOString(),
+  };
 
-    const item = {
-      id: uuidv4(),
-      text,
-      done: false,
-      createdAt: new Date().toISOString(),
-    };
+  db.data!.todos.push(item);
+  await persist();
 
-    const db = getDB();
-    db.data!.todos.push(item);
-    await persist();
+  ctx.session = null;
 
-    return ctx.reply(`Добавлено:\n${item.text} (${item.id})`);
-  }
+  const { text: msg, keyboard } = renderTodoItem(item);
+  return ctx.reply(`Добавлено:\n\n${msg}`, keyboard);
+}
 
-  // --------------------------
-  // 2. С П И С О К
-  // --------------------------
-  if (text === '📋 Список') {
-    const db = getDB();
-    const list = db.data!.todos;
+// -------------------------
+// КНОПКА: ГОТОВО
+// -------------------------
+export async function handleTodoDone(ctx: any) {
+  const id = ctx.match![1];
+  const db = getDB();
 
-    if (list.length === 0) return ctx.reply('Список пуст.');
+  const it = db.data!.todos.find((t) => t.id === id);
+  if (!it) return ctx.answerCbQuery('Не найдено');
 
-    const lines = list.map((t) => `${t.done ? '✅' : '⬜'} ${t.id}\n${t.text}`);
+  it.done = true;
+  await persist();
 
-    return ctx.reply(lines.join('\n\n'));
-  }
+  const { text, keyboard } = renderTodoItem(it);
 
-  // --------------------------
-  // 3. О Т М Е Т И Т Ь
-  // --------------------------
-  if (text === '✔️ Выполнить') {
-    ctx.session = { mode: 'todo_done' };
-    return ctx.reply('Введи ID задачи:');
-  }
+  await ctx.editMessageText(text, keyboard);
+  await ctx.answerCbQuery('Отмечено ✔');
+}
 
-  if (ctx.session?.mode === 'todo_done') {
-    ctx.session = null;
-    const id = text.trim();
+// -------------------------
+// КНОПКА: УДАЛИТЬ
+// -------------------------
+export async function handleTodoDelete(ctx: any) {
+  const id = ctx.match![1];
+  const db = getDB();
 
-    const db = getDB();
-    const it = db.data!.todos.find((t) => t.id === id);
+  db.data!.todos = db.data!.todos.filter((t) => t.id !== id);
+  await persist();
 
-    if (!it) return ctx.reply('Не найден ID.');
-
-    it.done = true;
-    await persist();
-
-    return ctx.reply('Отмечено как выполнено.');
-  }
-
-  // --------------------------
-  // 4. У Д А Л И Т Ь
-  // --------------------------
-  if (text === '🗑 Удалить') {
-    ctx.session = { mode: 'todo_remove' };
-    return ctx.reply('Введи ID для удаления:');
-  }
-
-  if (ctx.session?.mode === 'todo_remove') {
-    ctx.session = null;
-    const id = text.trim();
-
-    const db = getDB();
-    const before = db.data!.todos.length;
-
-    db.data!.todos = db.data!.todos.filter((t) => t.id !== id);
-
-    if (before === db.data!.todos.length) return ctx.reply('ID не найден.');
-
-    await persist();
-    return ctx.reply('Удалено.');
-  }
+  await ctx.deleteMessage();
+  await ctx.answerCbQuery('Удалено ❌');
 }
