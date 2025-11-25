@@ -1,67 +1,106 @@
-import { Context } from 'telegraf';
+import { Context, Markup } from 'telegraf';
 import { v4 as uuidv4 } from 'uuid';
 import { getDB, persist } from '../services/storage';
 
-export async function handleTodo(ctx: Context, source?: string) {
-  const args = (source || '').trim().split(' ');
-  const cmd = args[1];
+export async function showTodoMenu(ctx: Context) {
+  return ctx.reply(
+    'Меню TODO:',
+    Markup.keyboard([
+      ['➕ Добавить', '📋 Список'],
+      ['✔️ Выполнить', '🗑 Удалить'],
+    ])
+      .resize()
+      .oneTime(),
+  );
+}
 
-  const db = getDB();
+export async function handleTodoMessage(ctx: any) {
+  const text = ctx.message?.text;
 
-  if (!cmd || cmd === 'help') {
-    return ctx.reply(
-      'TODO команды:\n' +
-        '/todo add <text> - добавить\n' +
-        '/todo list - список\n' +
-        '/todo done <id> - отметить\n' +
-        '/todo remove <id> - удалить',
-    );
+  if (!text) return;
+
+  // --------------------------
+  // 1. Д O Б А В И Т Ь
+  // --------------------------
+  if (text === '➕ Добавить') {
+    ctx.session = { mode: 'todo_add' };
+    return ctx.reply('Напиши текст задачи:');
   }
 
-  if (cmd === 'add') {
-    const itemText = args.slice(2).join(' ');
-    if (!itemText) return ctx.reply('Текст пустой');
+  if (ctx.session?.mode === 'todo_add') {
+    ctx.session = null;
 
     const item = {
       id: uuidv4(),
-      text: itemText,
+      text,
       done: false,
       createdAt: new Date().toISOString(),
     };
 
+    const db = getDB();
     db.data!.todos.push(item);
     await persist();
-    return ctx.reply(`Добавлено: ${item.id}`);
+
+    return ctx.reply(`Добавлено:\n${item.text} (${item.id})`);
   }
 
-  if (cmd === 'list') {
+  // --------------------------
+  // 2. С П И С О К
+  // --------------------------
+  if (text === '📋 Список') {
+    const db = getDB();
     const list = db.data!.todos;
-    if (list.length === 0) return ctx.reply('Список TODO пуст');
 
-    const lines = list.map((t) => `${t.done ? '✅' : '⬜'} ${t.id} — ${t.text}`);
-    return ctx.reply(lines.join('\n'));
+    if (list.length === 0) return ctx.reply('Список пуст.');
+
+    const lines = list.map((t) => `${t.done ? '✅' : '⬜'} ${t.id}\n${t.text}`);
+
+    return ctx.reply(lines.join('\n\n'));
   }
 
-  if (cmd === 'done') {
-    const id = args[2];
+  // --------------------------
+  // 3. О Т М Е Т И Т Ь
+  // --------------------------
+  if (text === '✔️ Выполнить') {
+    ctx.session = { mode: 'todo_done' };
+    return ctx.reply('Введи ID задачи:');
+  }
+
+  if (ctx.session?.mode === 'todo_done') {
+    ctx.session = null;
+    const id = text.trim();
+
+    const db = getDB();
     const it = db.data!.todos.find((t) => t.id === id);
-    if (!it) return ctx.reply('Не найден id');
+
+    if (!it) return ctx.reply('Не найден ID.');
 
     it.done = true;
     await persist();
-    return ctx.reply('Отмечено как выполненное');
+
+    return ctx.reply('Отмечено как выполнено.');
   }
 
-  if (cmd === 'remove') {
-    const id = args[2];
+  // --------------------------
+  // 4. У Д А Л И Т Ь
+  // --------------------------
+  if (text === '🗑 Удалить') {
+    ctx.session = { mode: 'todo_remove' };
+    return ctx.reply('Введи ID для удаления:');
+  }
+
+  if (ctx.session?.mode === 'todo_remove') {
+    ctx.session = null;
+    const id = text.trim();
+
+    const db = getDB();
     const before = db.data!.todos.length;
+
     db.data!.todos = db.data!.todos.filter((t) => t.id !== id);
 
-    if (db.data!.todos.length === before) return ctx.reply('Не найден id');
+    if (before === db.data!.todos.length) return ctx.reply('ID не найден.');
 
     await persist();
-    return ctx.reply('Удалено');
+    return ctx.reply('Удалено.');
   }
-
-  return ctx.reply('Неизвестная команда. Используй /todo help');
 }
