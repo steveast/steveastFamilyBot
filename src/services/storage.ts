@@ -7,6 +7,7 @@ export type Todo = {
   text: string;
   done: boolean;
   createdAt: string;
+  chatId: number;
 };
 
 export type Reminder = {
