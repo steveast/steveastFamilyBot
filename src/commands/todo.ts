@@ -19,7 +19,7 @@ function renderTodoItem(todo: any) {
   return {
     text: `${todo.done ? '✅' : '⬜'} ${todo.text}\n`,
     keyboard: Markup.inlineKeyboard([
-      !todo.done ? [Markup.button.callback('✔ Готово', `todo_done_${todo.id}`)] : [],
+      !todo.done ? [Markup.button.callback('✅ Готово', `todo_done_${todo.id}`)] : [],
       [Markup.button.callback('❌ Удалить', `todo_del_${todo.id}`)],
     ]),
   };
@@ -94,7 +94,7 @@ export async function handleTodoDone(ctx: any) {
   const { text, keyboard } = renderTodoItem(it);
 
   await ctx.editMessageText(text, keyboard);
-  await ctx.answerCbQuery('Отмечено ✔');
+  await ctx.answerCbQuery('Отмечено ✅');
 }
 
 // -------------------------
