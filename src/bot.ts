@@ -1,5 +1,5 @@
 import { Telegraf } from 'telegraf';
-import { handleAi } from './commands/ai';
+// import { handleAi } from './commands/ai';
 import {
   showTodoMenu,
   handleTodoAddRequest,
@@ -36,9 +36,9 @@ export function createBot() {
   // Обработка текста (добавление TODO)
   bot.on(message('text'), handleTodoText);
 
-  bot.hears(/^ии\s+/i, async (ctx) => {
-    await handleAi(ctx);
-  });
+  // bot.hears(/^ии\s+/i, async (ctx) => {
+  //   await handleAi(ctx);
+  // });
 
   bot.launch();
   return bot;
