@@ -1,5 +1,4 @@
 import { Telegraf } from 'telegraf';
-// import { handleAi } from './commands/ai';
 import {
   showTodoMenu,
   handleTodoAddRequest,
@@ -10,6 +9,8 @@ import {
 } from './commands/todo';
 import { session } from 'telegraf';
 import { message } from 'telegraf/filters';
+import { handleChatGPT } from './commands/chatGPT';
+import { handleYandexGPT } from './commands/yandexGPT';
 
 export function createBot() {
   if (!process.env.BOT_TOKEN) throw new Error('BOT_TOKEN not set');
@@ -33,13 +34,16 @@ export function createBot() {
   bot.action(/^todo_done_(.+)$/, handleTodoDone);
   bot.action(/^todo_del_(.+)$/, handleTodoDelete);
 
+  bot.hears(/^ai\s+/i, async (ctx) => {
+    await handleChatGPT(ctx);
+  });
+
+  bot.hears(/^ии\s+/i, async (ctx) => {
+    await handleYandexGPT(ctx);
+  });
+
   // Обработка текста (добавление TODO)
   bot.on(message('text'), handleTodoText);
-
-  // bot.hears(/^ии\s+/i, async (ctx) => {
-  //   await handleAi(ctx);
-  // });
-
   bot.launch();
   return bot;
 }

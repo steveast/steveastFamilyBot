@@ -47,11 +47,11 @@ export async function handleTodoAddRequest(ctx: any) {
 }
 
 // ---------- Получение текста нового TODO ----------
-export async function handleTodoText(ctx: any) {
+export async function handleTodoText(ctx: any, next: any) {
   if (!ctx.session || ctx.session.mode !== 'todo_add') return;
 
   const text = 'text' in (ctx.message ?? {}) ? ctx.message.text : undefined;
-  if (!text || !ctx.chat) return;
+  if (!text || !ctx.chat || !ctx.session.waitingForTodo) return next();
 
   const db = getDB();
   const item = {

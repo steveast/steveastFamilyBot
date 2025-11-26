@@ -1,14 +1,14 @@
 import { Context } from 'telegraf';
 import { askChatGPT } from '../services/openai';
 
-export async function handleAi(ctx: any) {
+export async function handleChatGPT(ctx: any) {
   const messageText = ctx.message?.text || '';
   const lowerCaseText = messageText.toLowerCase();
 
-  if (lowerCaseText.startsWith('ии')) {
+  if (lowerCaseText.startsWith('ai')) {
     const prompt = messageText.slice(2).trim();
     if (!prompt) {
-      return ctx.reply('Напиши вопрос после «ИИ»');
+      return ctx.reply('Напиши вопрос после «ai»');
     }
 
     try {
