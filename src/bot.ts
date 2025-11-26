@@ -39,7 +39,7 @@ export function createBot() {
     await handleChatGPT(ctx);
   });
 
-  bot.hears(/^ии\s+/i, async (ctx) => {
+  bot.hears(/^алиса\s+/i, async (ctx) => {
     await handleYandexGPT(ctx);
   });
 

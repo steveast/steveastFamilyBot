@@ -47,10 +47,10 @@ export async function handleYandexGPT(ctx: any) {
   const messageText = ctx.message?.text || '';
   const lowerCaseText = messageText.toLowerCase();
 
-  if (lowerCaseText.startsWith('ии')) {
+  if (lowerCaseText.startsWith('алиса')) {
     const prompt = messageText.slice(2).trim();
     if (!prompt) {
-      return ctx.reply('Напиши вопрос после «ии»');
+      return ctx.reply('Напиши вопрос после «алиса»');
     }
 
     try {
