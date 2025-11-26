@@ -22,6 +22,7 @@ export function createBot() {
     Привет! Я Steve Family Bot.
 
 /todo - список дел!
+ии расскажи сказку - спроси Алису!
     `),
   );
 
